@@ -166,6 +166,10 @@ if (isset($_POST['register'])) {
     Sudah punya akun? <a href="login.php">Login</a>
   </p>
 
+    <p style="margin-top:15px;">
+    Anda admin?<a href="login.php">Masuk</a>
+  </p>
+
 </div>
 
 </body>
