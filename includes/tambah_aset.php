@@ -1,3 +1,72 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['id'])) {
+    die("Akses ditolak. Silakan login terlebih dahulu.");
+}
+
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "data_tubes";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Koneksi database gagal: " . $conn->connect_error);
+}
+
+if (isset($_POST['submit'])) {
+
+    $id_user = $_SESSION['id'];
+
+    $nama   = trim($_POST['nama_aset']);
+    $jenis  = $_POST['jenis_aset'];
+    $nilai  = $_POST['nilai'];
+    $tgl    = $_POST['tanggal_perolehan'];
+
+    if ($nama === "" || $jenis === "" || $nilai === "") {
+        die("Data tidak lengkap.");
+    }
+
+    if (!is_numeric($nilai) || $nilai <= 0) {
+        die("Nilai aset tidak valid.");
+    }
+
+    $tgl = empty($tgl) ? null : $tgl;
+
+    $stmt = $conn->prepare(
+        "INSERT INTO aset 
+        (id, nama_aset, jenis_aset, nilai, tanggal_perolehan)
+        VALUES (?, ?, ?, ?, ?)"
+    );
+
+    if (!$stmt) {
+        die("Query error: " . $conn->error);
+    }
+
+    $stmt->bind_param(
+        "issds",
+        $id_user,
+        $nama,
+        $jenis,
+        $nilai,
+        $tgl
+    );
+
+    if ($stmt->execute()) {
+        echo "<script>
+            alert('Aset berhasil ditambahkan');
+            window.location.href = 'dashboard.php';
+        </script>";
+    } else {
+        die("Gagal menyimpan data.");
+    }
+
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -49,19 +118,26 @@
   <main class="main-content">
     <div class="card">
       <div class="card-title"><i class="fas fa-gem" style="margin-right: 10px; color: var(--primary);"></i> Formulir Tambah Aset Baru</div>
-      <form class="asset-form">
-        <input type="text" placeholder="Nama Aset (misal: Emas Antam 10gr)" required>
-        <select required>
-            <option value="">Jenis Aset</option>
-            <option value="investasi">Investasi (Saham/Emas)</option>
-            <option value="properti">Properti (Rumah/Tanah)</option>
-            <option value="kendaraan">Kendaraan (Motor/Mobil)</option>
-        </select>
-        <input type="number" placeholder="Nilai Saat Ini (Rp)" required>
-        <label for="purchase-date" style="font-size: 0.9em; font-weight: 600; margin-top: 5px; color: var(--dark);">Tanggal Perolehan (Opsional):</label>
-        <input type="date" id="purchase-date">
-        <button><i class="fas fa-plus"></i> Tambah Aset</button>
-      </form>
+      <form class="asset-form" method="POST" action="">
+  <input type="text" name="nama_aset" placeholder="Nama Aset" required>
+
+  <select name="jenis_aset" required>
+    <option value="">Jenis Aset</option>
+    <option value="investasi">Investasi</option>
+    <option value="properti">Properti</option>
+    <option value="kendaraan">Kendaraan</option>
+  </select>
+
+  <input type="number" name="nilai" placeholder="Nilai Saat Ini (Rp)" required>
+
+  <label>Tanggal Perolehan (Opsional):</label>
+  <input type="date" name="tanggal_perolehan">
+
+  <button type="submit" name="submit">
+    <i class="fas fa-plus"></i> Tambah Aset
+  </button>
+</form>
+
     </div>
   </main>
 
