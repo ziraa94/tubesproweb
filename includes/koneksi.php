@@ -1,12 +1,6 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "data_tubes";
-
-$koneksi = mysqli_connect($host, $user, $pass, $db);
+$koneksi = mysqli_connect("localhost", "root", "", "data_tubes");
 
 if (!$koneksi) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+    die("Koneksi database gagal: " . mysqli_connect_error());
 }
-?>
