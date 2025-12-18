@@ -6,7 +6,7 @@ if (!$koneksi) {
 if (isset($_POST['tambah_data'])) {
     $nama     = mysqli_real_escape_string($koneksi, $_POST['nama']);
     $email    = mysqli_real_escape_string($koneksi, $_POST['email']);
-    $password = md5(mysqli_real_escape_string($koneksi, $_POST['password'])); 
+    $password = password_hash(mysqli_real_escape_string($koneksi, $_POST['password']), PASSWORD_DEFAULT); 
 
     $insert_query = "INSERT INTO data_masuk (nama, email, password) 
                      VALUES ('$nama', '$email', '$password')";
@@ -67,7 +67,7 @@ $total_halaman = ceil($total_data / $batas);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FINWISE ΓÇö Smart Finance, Smarter You</title>
+  <title>FINWISE-ADMIN</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
