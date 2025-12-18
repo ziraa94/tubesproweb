@@ -15,10 +15,17 @@ ADD role ENUM('admin','user') NOT NULL DEFAULT 'user';
 INSERT INTO data_masuk (nama, email, password, role)
 VALUES ('Admin', 'admin@finwise.com', 'HASH_PASSWORD', 'admin'); 
 
+yang dimasukin di layar nanti 
+email/username   : admin
+password         : admin123
+
 <--query user sementara-->
 INSERT INTO data_masuk (nama, email, password)
 VALUES ('Budi', 'budi@email.com', 'HASH_PASSWORD');
 
+yang dimasukin di layar nanti 
+email/username   : budi
+password         : budi123
 
 CREATE TABLE aset (
   id INT AUTO_INCREMENT PRIMARY KEY,
