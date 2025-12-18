@@ -16,24 +16,44 @@ if (!$koneksi) {
 $error = "";
 
 if (isset($_POST['login'])) {
-    $email    = $_POST['email'];
-    $password = $_POST['password'];
+  $identifier = trim($_POST['email']); // bisa email atau username
+  $password   = $_POST['password'];
 
-    $query = mysqli_query($koneksi, "SELECT * FROM data_masuk WHERE email='$email'");
-    $data  = mysqli_fetch_assoc($query);
+  if ($identifier === '' || $password === '') {
+    $error = "Email/Username dan password harus diisi!";
+  } else {
+    if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+      $sql = "SELECT * FROM data_masuk WHERE email = ? LIMIT 1";
+    } else {
+      $sql = "SELECT * FROM data_masuk WHERE nama = ? LIMIT 1";
+    }
+
+    $data = null;
+    if ($stmt = mysqli_prepare($koneksi, $sql)) {
+      mysqli_stmt_bind_param($stmt, 's', $identifier);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
+      if ($result) {
+        $data = mysqli_fetch_assoc($result);
+      }
+      mysqli_stmt_close($stmt);
+    }
 
     if ($data) {
-        if (password_verify($password, $data['password'])) {
-            $_SESSION['email'] = $data['email'];
-            $_SESSION['nama']  = $data['nama'];
-            header("Location: fitur.php");
-            exit;
-        } else {
-            $error = "Password salah!";
-        }
+      if (password_verify($password, $data['password'])) {
+        $_SESSION['id']    = $data['id'];   // INI KUNCI UTAMA
+        $_SESSION['email'] = $data['email'];
+        $_SESSION['nama']  = $data['nama'];
+
+        header("Location: dashboard.php");
+        exit;
+      } else {
+        $error = "Password salah!";
+      }
     } else {
-        $error = "Email belum terdaftar!";
+      $error = "Email atau username belum terdaftar!";
     }
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -143,10 +163,10 @@ if (isset($_POST['login'])) {
   <!-- FORM LOGIN -->
   <form method="POST">
 
-    <div class="input-group">
-      <i class="fas fa-envelope input-icon"></i>
-      <input type="email" name="email" class="login-input" placeholder="Email" required>
-    </div>
+      <div class="input-group">
+        <i class="fas fa-envelope input-icon"></i>
+        <input type="text" name="email" class="login-input" placeholder="Email atau username" required>
+      </div>
 
     <div class="input-group">
       <i class="fas fa-lock input-icon"></i>
